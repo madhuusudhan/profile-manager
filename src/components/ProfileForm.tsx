@@ -1,7 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { type AppDispatch, type RootState } from "../stateStore/store";
+import { type AppDispatch } from "../stateStore/store";
 import { updateProfile } from "../stateStore/profileSlice";
 import { ProfileSchema, type profileForm} from "../schemas/profileSchema";
 import { TextField, Button, Box, Typography } from "@mui/material";
