@@ -14,7 +14,7 @@ export interface AutohideSnackbarProps {
 
 export default function AutohideSnackbar({ message, open, onClose, severity }: AutohideSnackbarProps) {
   const handleClose = (
-    event: React.SyntheticEvent | Event,
+    _event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason
   ) => {
     if (reason === 'clickaway') return;
