@@ -41,6 +41,7 @@ const delay = () => new Promise(resolve => setTimeout(resolve, 500));
                 };
             }
             else {
+                userdata = profileData;
                 return Promise.resolve({
                 status: "success",
                 message: "Profile created successfully.",

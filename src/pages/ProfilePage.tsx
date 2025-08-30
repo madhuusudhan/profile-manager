@@ -31,7 +31,7 @@ export default function ProfilePage() {
     };
 
     loadProfile();
-  }, [dispatch]);
+  }, [dispatch, profile]);
   
   
   if (!profile.name) {
