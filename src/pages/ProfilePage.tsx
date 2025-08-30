@@ -1,14 +1,39 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { type RootState } from "../stateStore/store";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { type AppDispatch, type RootState } from "../stateStore/store";
 import { Box, Typography, Link as MuiLink } from "@mui/material";
 import { Link } from "react-router-dom";
 import Profile from "../components/Profile";
+import profileController from "../api/profileController";
+import { updateProfile } from "../stateStore/profileSlice";
 
 export default function ProfilePage() {
   const profile = useSelector((state: RootState) => state.profile);
+  const dispatch = useDispatch<AppDispatch>();
+  
+  useEffect(() => {
+    const loadProfile = async () => {
+      const cachedData = localStorage.getItem("profileData");
 
-  // If no profile exists
+      if (cachedData) {
+        dispatch(updateProfile(JSON.parse(cachedData)));
+      } else {
+        try {
+          const result = await profileController.getInfo();
+          if (result?.data) {
+            dispatch(updateProfile(result.data));
+            localStorage.setItem("profileData", JSON.stringify(result.data));
+          }
+        } catch (err) {
+          console.error("Failed to load profile:", err);
+        }
+      }
+    };
+
+    loadProfile();
+  }, [dispatch]);
+  
+  
   if (!profile.name) {
     return (
       <Box

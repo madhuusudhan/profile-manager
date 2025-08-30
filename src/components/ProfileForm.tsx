@@ -1,15 +1,15 @@
 import React from "react";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { type AppDispatch, type RootState } from "../stateStore/store";
-import { updateProfile, clearProfile } from "../stateStore/profileSlice";
+import { updateProfile } from "../stateStore/profileSlice";
 import { ProfileSchema, type profileForm} from "../schemas/profileSchema";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import AutohideSnackbar from "./Snackbar";
 import { useNavigate } from "react-router-dom";
+import profileController from "../api/profileController";
 export default function ProfileForm() {
     const dispatch = useDispatch<AppDispatch>();
-    const [isReadOnly, setIsReadOnly] = useState<boolean>(false);
     const [form, setForm] = useState<profileForm>({
       name: "",
       email: "",
@@ -19,6 +19,7 @@ export default function ProfileForm() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("");
     const navigate = useNavigate();
+    const [error, setError] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -28,7 +29,7 @@ export default function ProfileForm() {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const result = ProfileSchema.safeParse(form);
@@ -44,15 +45,32 @@ export default function ProfileForm() {
             setErrors(fieldErrors);
             return;
         }
-        setForm({ name: "", email: "", age: undefined });
-        setErrors({});
-        dispatch(updateProfile(result.data));
-        setSnackbarMessage("Profile updated successfully!");
-        setSnackbarOpen(true);
-        localStorage.setItem("profileData", JSON.stringify(result.data));
-        setTimeout(() => {
-          navigate('/profile'); 
-        }, 2000);
+        const response = await profileController.createProfile(form);
+        try {
+          
+          if(response.status === "success") {
+                  setForm({ name: "", email: "", age: undefined });
+                  setErrors({});
+                  dispatch(updateProfile(result.data));
+                  setSnackbarMessage(response.message);
+                  setSnackbarOpen(true);
+                  localStorage.setItem("profileData", JSON.stringify(result.data));
+                  setTimeout(() => {
+                    navigate('/profile'); 
+                  }, 2000);
+          }
+          else {
+            setError(true);
+            setSnackbarOpen(true);
+            setSnackbarMessage(response.message);
+          }
+        } catch (error) {
+          console.log("Error while creating the account",error);
+          setError(true);
+          setSnackbarOpen(true);
+          setSnackbarMessage("Something Went Wrong");
+        }
+        
     };
     const handleClear = () => {
       setForm({ name: "", email: "", age: undefined });
@@ -88,7 +106,6 @@ export default function ProfileForm() {
             error={!!errors.name}
             helperText={errors.name}
             fullWidth
-            InputProps={{ readOnly: isReadOnly }}
           />
 
           <TextField
@@ -100,7 +117,6 @@ export default function ProfileForm() {
             error={!!errors.email}
             helperText={errors.email}
             fullWidth
-            InputProps={{ readOnly: isReadOnly }}
           />
 
           <TextField
@@ -112,7 +128,6 @@ export default function ProfileForm() {
             error={!!errors.age}
             helperText={errors.age}
             fullWidth
-            InputProps={{ readOnly: isReadOnly }}
           />
 
           <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
@@ -128,6 +143,7 @@ export default function ProfileForm() {
             message={snackbarMessage}
             open={snackbarOpen}
             onClose={() => setSnackbarOpen(false)}
+            severity={error != true ? "success": "error" }
         />
         </>
     );

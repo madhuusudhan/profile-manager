@@ -1,13 +1,18 @@
 import * as React from 'react';
 import Snackbar, { type SnackbarCloseReason } from '@mui/material/Snackbar';
 import { Alert } from '@mui/material';
+
+export type AlertColor = 'success' | 'info' | 'warning' | 'error';
+
 export interface AutohideSnackbarProps {
   message: string;
   open: boolean;
   onClose: () => void;
+  severity: AlertColor;
 }
 
-export default function AutohideSnackbar({ message, open, onClose }: AutohideSnackbarProps) {
+
+export default function AutohideSnackbar({ message, open, onClose, severity }: AutohideSnackbarProps) {
   const handleClose = (
     event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason
@@ -24,7 +29,7 @@ export default function AutohideSnackbar({ message, open, onClose }: AutohideSna
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }} 
     >
     <Alert
-    severity="success"
+    severity={severity}
     variant="filled"
     sx={{ width: '100%' }}
     >{message}</Alert>

@@ -6,17 +6,11 @@ export interface ProfileState {
   age?: number;
 }
 
-const initialState: ProfileState = (() => {
-  const stored = localStorage.getItem("profileData");
-  if (stored) {
-    try {
-      return JSON.parse(stored) as ProfileState;
-    } catch {
-      return { name: "", email: "", age: undefined };
-    }
-  }
-  return { name: "", email: "", age: undefined };
-})();
+const initialState: ProfileState = {
+  name: "",
+  email: "",
+  age: undefined
+}
 
 const profileSlice = createSlice({
   name: "profile", 

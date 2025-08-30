@@ -16,7 +16,8 @@ import {
   DialogActions,
 } from "@mui/material";
 import AutohideSnackbar from "./Snackbar";
-import { useNavigate } from "react-router-dom";
+import profileController from "../api/profileController";
+
 
 export default function Profile() {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,7 +28,7 @@ export default function Profile() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const navigate = useNavigate();
+  const [error, setError] = useState(false);
   useEffect(() => {
     const storedProfile = localStorage.getItem("profileData");
     if (storedProfile) {
@@ -49,7 +50,7 @@ export default function Profile() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = ProfileSchema.safeParse(form);
 
@@ -64,13 +65,23 @@ export default function Profile() {
       setErrors(fieldErrors);
       return;
     }
-
-    setErrors({});
-    dispatch(updateProfile(result.data));
-    setSnackbarMessage("Profile updated successfully!");
-    setSnackbarOpen(true);
-    localStorage.setItem("profileData", JSON.stringify(result.data));
-    setIsReadOnly(true);
+      const response = await profileController.updateProfile(form);
+    try {
+        
+        if(response.status === "success") {
+          setErrors({});
+          dispatch(updateProfile(result.data));
+          setSnackbarMessage(response.message);
+          setSnackbarOpen(true);
+          localStorage.setItem("profileData", JSON.stringify(result.data));
+          setIsReadOnly(true);
+        }
+    } catch (error) {
+      console.error("Error in updating the Information", error);
+      setSnackbarMessage(response.message);
+      setSnackbarOpen(true);
+      setError(true);
+    }
 
   };
 
@@ -78,17 +89,25 @@ export default function Profile() {
     setOpenDeleteDialog(true);
   };
 
-  const confirmDelete = () => {
-    dispatch(clearProfile());
-    setForm({ name: "", email: "", age: undefined });
-    setErrors({});
-    setOpenDeleteDialog(false);
-    setSnackbarMessage("Profile deleted successfully!");
-    setSnackbarOpen(true);
-    localStorage.removeItem("profileData");
-    setTimeout(() => {
-        navigate('/profile-form'); 
-      }, 2000);
+  const confirmDelete = async () => {
+    const response = await profileController.deleteProfile(profile);
+    try {
+      if(response.status === "success") {
+        dispatch(clearProfile());
+        setForm({ name: "", email: "", age: undefined });
+        setErrors({});
+        setOpenDeleteDialog(false);
+        setSnackbarMessage(response.message);
+        setSnackbarOpen(true);
+        setError(true);
+        localStorage.removeItem("profileData");
+      }
+    } catch (error) {
+      console.error("Error in deleting the profile", error);
+      setSnackbarMessage(response.message);
+      setSnackbarOpen(true);
+      setError(true);
+    }
   };
 
   const cancelDelete = () => setOpenDeleteDialog(false);
@@ -176,7 +195,6 @@ export default function Profile() {
         </Box>
       </Box>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={openDeleteDialog} onClose={cancelDelete}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
@@ -194,11 +212,11 @@ export default function Profile() {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
       <AutohideSnackbar
         message={snackbarMessage}
         open={snackbarOpen}
         onClose={() => setSnackbarOpen(false)}
+        severity={error != true ? "success": "error" }
       />
     </>
   );

@@ -1,5 +1,4 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, Button, Avatar, Box, Tooltip, IconButton } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Avatar, Box, Tooltip } from "@mui/material";
 import { useSelector } from "react-redux";
 import { type RootState } from "../stateStore/store";
 import { useLocation, useNavigate } from "react-router-dom";
