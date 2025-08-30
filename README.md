@@ -1,69 +1,56 @@
-# React + TypeScript + Vite
+# Profile Management Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+A responsive **React + TypeScript** profile management system built with **Redux Toolkit, React Router, Material UI, and Zod validation**.  
+Implements **form validation, routing, global state, localStorage persistence, environment configuration, mock API with delay, and a polished UI/UX**.
 
-Currently, two official plugins are available:
+## Features
+- **Full CRUD Operations:** Create, update, view, and delete user profiles
+- **Form Validation with Zod:**
+  - **Name:** Required, minimum 3 characters
+  - **Email:** Required, valid email format
+  - **Age:** Optional, must be a valid number
+- **Redux Toolkit** for centralized state management
+- **React Router** for navigation (`/profile-form`, `/profile`, `/404`)
+- **Material UI** components for modern UI: Inputs, Buttons, Avatar, Dialogs
+- **Custom Snackbar Component** for success and error notifications
+- **LocalStorage persistence** to retain user profile across sessions
+- **Mock API** with Promise-based architecture and simulated network delay
+- **Environment configuration** with `.env` files (development & production)
+- **Dynamic Navbar** shows first & last name when available
+- **Error Handling:** Handled validation errors, API errors, and empty states
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Installation Steps
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Clone the repository
+```bash
+git clone https://github.com/madhuusudhan/profile-manager.git
+cd profile-manager
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Install dependencies
+```bash
+npm install
 ```
+
+### Create Environment files in project root
+.env.development
+```bash
+VITE_API_BASE_URL=http://localhost:5000
+```
+.env.production
+```bash
+VITE_API_BASE_URL=https://your-production-api.com
+```
+
+### Start development seerver
+```bash
+npm run dev
+```
+
+### Build for production
+```bash
+npm run build
+```
+
+
