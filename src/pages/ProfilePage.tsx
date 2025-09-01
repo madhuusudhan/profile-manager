@@ -4,8 +4,8 @@ import { type AppDispatch, type RootState } from "../stateStore/store";
 import { Box, Typography, Link as MuiLink } from "@mui/material";
 import { Link } from "react-router-dom";
 import Profile from "../components/Profile";
-import profileController from "../api/profileController";
-import { updateProfile } from "../stateStore/profileSlice";
+import { fetchProfileAsync} from "../stateStore/profileThunks";
+import { updateProfileFromCache } from "../stateStore/profileSlice";
 
 export default function ProfilePage() {
   const profile = useSelector((state: RootState) => state.profile);
@@ -14,24 +14,31 @@ export default function ProfilePage() {
   useEffect(() => {
     const loadProfile = async () => {
       const cachedData = localStorage.getItem("profileData");
-
+  
       if (cachedData) {
-        dispatch(updateProfile(JSON.parse(cachedData)));
-      } else {
         try {
-          const result = await profileController.getInfo();
-          if (result?.data) {
-            dispatch(updateProfile(result.data));
-            localStorage.setItem("profileData", JSON.stringify(result.data));
-          }
+          const parsedData = JSON.parse(cachedData);
+          dispatch(updateProfileFromCache(parsedData));
         } catch (err) {
-          console.error("Failed to load profile:", err);
+          console.error("Failed to parse cached profile:", err);
         }
+        return;
+      }
+  
+      try {
+        const result = await dispatch(fetchProfileAsync()).unwrap();
+        if (result.data) {
+          localStorage.setItem("profileData", JSON.stringify(result.data));
+        }
+      } catch (err) {
+        console.error("Failed to load profile:", err);
       }
     };
-
+  
     loadProfile();
-  }, [dispatch, profile]);
+  }, [dispatch]);
+  
+  
   
   
   if (!profile.name) {

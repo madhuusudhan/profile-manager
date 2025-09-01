@@ -69,23 +69,25 @@ const delay = () => new Promise(resolve => setTimeout(resolve, 500));
             });
         },
 
-        deleteProfile: async (profileData: profileForm): Promise<ApiResponse<profileForm>> => {
+        deleteProfile: async (): Promise<ApiResponse<null>> => {
             await delay();
-
-            if(!profileData) {
-                return {
-                    status: "error",
-                    message: "Profile not found",
-                    data: null
-                }
+          
+            if (!userdata) {
+              return {
+                status: "error",
+                message: "Profile not found",
+                data: null,
+              };
             }
+          
             userdata = null;
             return Promise.resolve({
-                status: "success",
-                "message": "Profile deleted successfully",
-                data: null
+              status: "success",
+              message: "Profile deleted successfully",
+              data: null,
             });
-        },
+          },
+          
 };
 
 export default profileController;

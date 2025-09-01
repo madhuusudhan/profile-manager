@@ -5,7 +5,7 @@ export const ProfileSchema = z.object({
     email: z.email("Invalid email address"),
     age: z.preprocess(
         (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
-        z.number().int().gt(0, "Age must be greater than 0").lt(100, "Age must be a valid number").optional()
+        z.number().int("Age must be an Integer").min(18, "Age must be at least 18").lt(100, "Age must be less than 100").optional()
       ),
 });
 

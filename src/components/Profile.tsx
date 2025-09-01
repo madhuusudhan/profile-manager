@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { type AppDispatch, type RootState } from "../stateStore/store";
-import { updateProfile, clearProfile } from "../stateStore/profileSlice";
 import { ProfileSchema, type profileForm } from "../schemas/profileSchema";
+import { updateProfileAsync, deleteProfileAsync } from "../stateStore/profileThunks";
 import {
   TextField,
   Button,
@@ -16,7 +16,6 @@ import {
   DialogActions,
 } from "@mui/material";
 import AutohideSnackbar from "./Snackbar";
-import profileController from "../api/profileController";
 
 
 export default function Profile() {
@@ -65,23 +64,23 @@ export default function Profile() {
       setErrors(fieldErrors);
       return;
     }
-      const response = await profileController.updateProfile(form);
     try {
-        
-        if(response.status === "success") {
-          setErrors({});
-          dispatch(updateProfile(result.data));
-          setSnackbarMessage(response.message);
-          setSnackbarOpen(true);
-          localStorage.setItem("profileData", JSON.stringify(result.data));
-          setIsReadOnly(true);
-        }
-    } catch (error) {
-      console.error("Error in updating the Information", error);
+      const response = await dispatch(updateProfileAsync(form)).unwrap();
+    
+      setErrors({});
       setSnackbarMessage(response.message);
+      setSnackbarOpen(true);
+      localStorage.setItem("profileData", JSON.stringify(response.data));
+      setIsReadOnly(true);
+    } catch (error) {
+
+      const err = error as { status: "error"; message: string; data: null };
+      console.error("Error in updating the Information", err);
+      setSnackbarMessage(err.message);
       setSnackbarOpen(true);
       setError(true);
     }
+    
 
   };
 
@@ -90,10 +89,9 @@ export default function Profile() {
   };
 
   const confirmDelete = async () => {
-    const response = await profileController.deleteProfile(profile);
+
     try {
-      if(response.status === "success") {
-        dispatch(clearProfile());
+      const response = await dispatch(deleteProfileAsync()).unwrap();
         setForm({ name: "", email: "", age: undefined });
         setErrors({});
         setOpenDeleteDialog(false);
@@ -101,10 +99,11 @@ export default function Profile() {
         setSnackbarOpen(true);
         setError(true);
         localStorage.removeItem("profileData");
-      }
+      
     } catch (error) {
-      console.error("Error in deleting the profile", error);
-      setSnackbarMessage(response.message);
+      const err = error as { status: "error"; message: string; data: null };
+      console.error("Error in deleting the profile", err);
+      setSnackbarMessage(err.message);
       setSnackbarOpen(true);
       setError(true);
     }

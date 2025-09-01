@@ -2,12 +2,12 @@ import React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { type AppDispatch } from "../stateStore/store";
-import { updateProfile } from "../stateStore/profileSlice";
 import { ProfileSchema, type profileForm} from "../schemas/profileSchema";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import AutohideSnackbar from "./Snackbar";
 import { useNavigate } from "react-router-dom";
-import profileController from "../api/profileController";
+import { type ApiResponse } from "../schemas/apiResponse";
+import { createProfileAsync } from "../stateStore/profileThunks";
 export default function ProfileForm() {
     const dispatch = useDispatch<AppDispatch>();
     const [form, setForm] = useState<profileForm>({
@@ -45,31 +45,26 @@ export default function ProfileForm() {
             setErrors(fieldErrors);
             return;
         }
-        const response = await profileController.createProfile(form);
         try {
+          const response = await dispatch(createProfileAsync(form)).unwrap();
+        
           
-          if(response.status === "success") {
-                  setForm({ name: "", email: "", age: undefined });
-                  setErrors({});
-                  dispatch(updateProfile(result.data));
-                  setSnackbarMessage(response.message);
-                  setSnackbarOpen(true);
-                  localStorage.setItem("profileData", JSON.stringify(result.data));
-                  setTimeout(() => {
-                    navigate('/profile'); 
-                  }, 2000);
-          }
-          else {
-            setError(true);
-            setSnackbarOpen(true);
-            setSnackbarMessage(response.message);
-          }
-        } catch (error) {
-          console.log("Error while creating the account",error);
-          setError(true);
+          setForm({ name: "", email: "", age: undefined });
+          setErrors({});
+          setSnackbarMessage(response.message);
           setSnackbarOpen(true);
-          setSnackbarMessage("Something Went Wrong");
+          localStorage.setItem("profileData", JSON.stringify(response.data));
+          setTimeout(() => navigate("/profile"), 2000);
+        
+        } catch (err) {
+          const error = err as ApiResponse<profileForm>; 
+          console.error("Profile creation failed:", error);
+        
+          setError(true);
+          setSnackbarMessage(error.message || "Something went wrong");
+          setSnackbarOpen(true);
         }
+        
         
     };
     const handleClear = () => {
